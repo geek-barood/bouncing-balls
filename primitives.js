@@ -31,9 +31,7 @@ var Ball = function(ctx, color, x, y, r) {
 
 	this.isCollidingWith = function(other) {
 		var pos = this.get_next_pos();
-		var check_x = (other.x+other.radius < this.x-this.radius) || (this.x+this.radius < other.x-other.radius);
-		var check_y = (other.y+other.radius < this.y-this.radius) || (this.y+this.radius < other.y-other.radius);
-		return check_y || check_x;
+		return (Math.sqrt(Math.pow((pos.x - other.x), 2.0) + Math.pow((pos.y - other.y), 2.0)) < 2*this.radius);
 	}
 	this.move = function() {
 		var t = 5/60;
@@ -41,18 +39,5 @@ var Ball = function(ctx, color, x, y, r) {
 		this.y = this.y + t*this.vel.y + 1/2*t*t*(gravity.y);
 		this.vel.x = this.vel.x + gravity.x*t;
 		this.vel.y = this.vel.y + gravity.y*t;
-	}
-
-	this.withinBoundary = function(x, y) {
-		var res = {x:true, y:true};
-		if ((x+this.radius < scene.width) && 
-			(x-this.radius > 0)) {
-			res.x = false;
-		}
-		if ((y+this.radius < scene.height) &&
-			(y-this.radius > 0)) {
-			res.y = false;
-		}
-		return res;
 	}
 };

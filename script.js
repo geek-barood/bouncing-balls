@@ -50,13 +50,26 @@ function start_animation() {
 			if (wall.y === false) {
 				ball.vel.y *= -0.6;
 			}
+			// this will check for collision with other balls
+			for (var j=0; j < balls.length; ++j) {
+				if (i == j) continue;
+				var other = balls[j];
+				if (ball.isCollidingWith(other)) {
+					var theta = Math.atan((ball.y - other.y)/(ball.x - other.x));
+					var v_x = -0.5*(ball.vel.x+other.vel.x)*0.6*Math.cos(theta);
+					var v_y = -0.5*(ball.vel.y+other.vel.y)*0.6*Math.sin(theta);
+					ball.vel.x = v_x;
+					ball.vel.y = v_y;
+				}
+			}
 			if (withinBoundary(ball, ball.get_next_pos().x, ball.get_next_pos().y).y == false) {
 				ball.vel.y = 0;
 				ball.vel.x = ball.vel.x/1.01;
 				ball.y = scene.height - ball.radius;
 			}
-			ball.move();
 		}
+		for (var i=0; i < balls.length; ++i)
+			balls[i].move();
 		draw();
 		if (true || progress < 6000) {
 			window.requestAnimationFrame(step);

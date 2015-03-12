@@ -1,6 +1,6 @@
 var gravity = {
 	x: 0,
-	y: 8*9.8
+	y: 2*9.8
 };
 var Ball = function(ctx, color, x, y, r) {
 	this.x = x;
@@ -41,5 +41,18 @@ var Ball = function(ctx, color, x, y, r) {
 		this.y = this.y + t*this.vel.y + 1/2*t*t*(gravity.y);
 		this.vel.x = this.vel.x + gravity.x*t;
 		this.vel.y = this.vel.y + gravity.y*t;
+	}
+
+	this.withinBoundary = function(x, y) {
+		var res = {x:true, y:true};
+		if ((x+this.radius < scene.width) && 
+			(x-this.radius > 0)) {
+			res.x = false;
+		}
+		if ((y+this.radius < scene.height) &&
+			(y-this.radius > 0)) {
+			res.y = false;
+		}
+		return res;
 	}
 };

@@ -8,10 +8,10 @@ function init() {
 	scene_ctx.fillRect(0, 0, scene.width, scene.height);
 }
 
-function createBall() {
+function createBall(x, y) {
 	var col = colors[parseInt(colors.length*Math.random())];
 	console.log(col);
-	var ball = new Ball(scene_ctx, col, scene.width/2 - 10, 200, 10);
+	var ball = new Ball(scene_ctx, col, x, y, 10);
 	ball.vel.x = Math.pow(-1, parseInt(Math.random()*2))*80*Math.random();
 	ball.vel.y = -120*Math.random();
 	return ball;
@@ -24,38 +24,60 @@ function draw() {
 	}
 }
 
+function withinBoundary(ball, x, y) {
+	var res = {x:false, y:false};
+	if ((x+ball.radius < scene.width) && 
+		(x-ball.radius > 0)) {
+		res.x = true;
+	}
+	if ((y+ball.radius < scene.height) &&
+		(y-ball.radius > 0)) {
+		res.y = true;
+	}
+	return res;
+}
+
 function start_animation() {
 	start = window.performance.now();
-
-	function within_boundary(ball) {
-		var res = ((ball.x+ball.radius < scene.width) && 
-				(ball.x-ball.radius > 0) &&
-				(ball.y+ball.radius < scene.height) &&
-				(ball.y-ball.radius > 0));
-		return res;
-	}
 	function step(timestamp) {
 		var progress = timestamp - start;
-		for (var i = 0; i < balls.length; i++) {
+		for (var i = 0; i < balls.length; ++i) {
 			var ball = balls[i];
-			if (within_boundary(ball) == false) {
-				ball.vel.x *= -0.8*(Math.random()+0.2);
-				ball.vel.y *= -0.8*(Math.random()+0.2);
+			var wall = withinBoundary(ball, ball.get_next_pos().x, ball.get_next_pos().y);
+			if (wall.x === false) {
+				ball.vel.x *= -0.6;
 			}
-			ball.move(0, 8*9.8);
+			if (wall.y === false) {
+				ball.vel.y *= -0.6;
+			}
+			if (withinBoundary(ball, ball.get_next_pos().x, ball.get_next_pos().y).y == false) {
+				ball.vel.y = 0;
+				ball.vel.x = ball.vel.x/1.01;
+				ball.y = scene.height - ball.radius;
+			}
+			ball.move();
 		}
 		draw();
-		if (progress < 6000) {
+		if (true || progress < 6000) {
 			window.requestAnimationFrame(step);
 		}
 	}
 	window.requestAnimationFrame(step);
 }
-
 balls = [];
-for (var i = 0; i<20; ++i) {
-	balls.push(createBall());
+function getMousePos(canvas, evt) {
+	var rect = canvas.getBoundingClientRect();
+	return {
+		x: evt.clientX - rect.left,
+		y: evt.clientY - rect.top
+	};
 }
+scene.addEventListener('click', function(evt) {
+	var mousePos = getMousePos(scene, evt);
+	balls.push(createBall(mousePos.x, mousePos.y));
+	var msg = 'Mouse position: ' + mousePos.x + ' ' + mousePos.y;
+	console.log(msg);
+}, false);
 
 start_animation();
 
